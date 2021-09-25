@@ -17,6 +17,8 @@ import android.widget.Toast;
 
 import java.util.StringTokenizer;
 
+
+// web to create qr text https://www.the-qrcode-generator.com
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button scanBtn, guardar, eliminar, ver;
@@ -54,17 +56,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         //Se obtiene el resultado del proceso de scaneo y se parsea
+        //super.onActivityResult(requestCode, resultCode, intent);
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanningResult != null) {
             //Quiere decir que se obtuvo resultado pro lo tanto:
             //Desplegamos en pantalla el contenido del código de barra scaneado
             String scanContent = scanningResult.getContents();
 
-            StringTokenizer t= new StringTokenizer(scanContent,"*");
-            final String nombre=t.nextToken();
-            final String telefono=t.nextToken();
-            final String email=t.nextToken();
-            nombreTxt.setText(""+nombre);
+            StringTokenizer t = new StringTokenizer(scanContent, "*");
+            final String nombre = t.nextToken();
+            final String telefono = t.nextToken();
+            final String email = t.nextToken();
+            nombreTxt.setText("" + nombre);
             //Desplegamos en pantalla el nombre del formato del código de barra scaneado
 
             telefonoTxt.setText("" + telefono);
@@ -73,15 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             emailTxt.setText("" + email);
 
 
-
-
-
-
-
-
-
-
-        }else{
+        } else {
             //Quiere decir que NO se obtuvo resultado
             Toast toast = Toast.makeText(getApplicationContext(),
                     "No se ha recibido datos del scaneo!", Toast.LENGTH_SHORT);
