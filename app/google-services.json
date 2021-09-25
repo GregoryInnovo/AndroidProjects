@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "428355375535",
+    "firebase_url": "https://qrprueba-eb43b-default-rtdb.firebaseio.com",
+    "project_id": "qrprueba-eb43b",
+    "storage_bucket": "qrprueba-eb43b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:428355375535:android:af33f886b536e0d1811f5a",
+        "android_client_info": {
+          "package_name": "com.example.qrcodes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "428355375535-508f6lohcgbeh02qb5ip44hvrcckhsbu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDdOv-SGhmmUFhP_dbAYvYGQu0vTYg9xA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "428355375535-508f6lohcgbeh02qb5ip44hvrcckhsbu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
