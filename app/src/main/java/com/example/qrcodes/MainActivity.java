@@ -20,7 +20,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 
 // web to create qr text https://www.the-qrcode-generator.com
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity  implements View.OnClickListener {
 
     //defining view objects
     private EditText TextEmail;
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity  {
 
         //asociamos un oyente al evento clic del botón
         btnRegistrar.setOnClickListener(this);
-        btnLogin.setOnClickListener(this);*/
+        btnLogin.setOnClickListener(this);
     }
 
     private void registrarUsuario() {
