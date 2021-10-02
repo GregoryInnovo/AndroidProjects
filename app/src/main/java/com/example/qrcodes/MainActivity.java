@@ -1,157 +1,166 @@
 package com.example.qrcodes;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.ContentValues;
-import android.content.DialogInterface;
+import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-//import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.StringTokenizer;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
 
 // web to create qr text https://www.the-qrcode-generator.com
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity  {
 
-    private Button scanBtn, guardar, eliminar, ver;
-    private EditText nombreTxt, telefonoTxt, emailTxt, codigoTxt;
+    //defining view objects
+    private EditText TextEmail;
+    private EditText TextPassword;
+    private Button btnRegistrar, btnLogin;
+    private ProgressDialog progressDialog;
 
 
-
+    //Declaramos un objeto firebaseAuth
+    private FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Se Instancia el botón de Scan
-        scanBtn = (Button)findViewById(R.id.scan_button);
-        //Se Instancia el Campo de Texto para el nombre del formato de código de barra
-        nombreTxt = (EditText)findViewById(R.id.scan_nombre);
-        //Se Instancia el Campo de Texto para el contenido  del código de barra
-        telefonoTxt = (EditText)findViewById(R.id.scan_telefono);
 
-        emailTxt = (EditText)findViewById(R.id.scan_email);
-        //Se agrega la clase MainActivity.java como Listener del evento click del botón de Scan
-        codigoTxt = (EditText)findViewById(R.id.scan_codigo);
-        scanBtn.setOnClickListener(this);
+        //inicializamos el objeto firebaseAuth
+        firebaseAuth = FirebaseAuth.getInstance();
 
-        guardar=(Button)findViewById(R.id.guardar);
-        guardar.setOnClickListener(this);
+        //Referenciamos los views
+        TextEmail = (EditText) findViewById(R.id.TxtEmail);
+        TextPassword = (EditText) findViewById(R.id.TxtPassword);
 
-        ver=(Button)findViewById(R.id.ver);
-        ver.setOnClickListener(this);
+        btnRegistrar = (Button) findViewById(R.id.botonRegistrar);
+        btnLogin = (Button) findViewById(R.id.botonLogin);
 
-        eliminar=(Button)findViewById(R.id.eliminar);
-        eliminar.setOnClickListener(this);
+        progressDialog = new ProgressDialog(this);
 
+        //asociamos un oyente al evento clic del botón
+        btnRegistrar.setOnClickListener(this);
+        btnLogin.setOnClickListener(this);*/
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        //Se obtiene el resultado del proceso de scaneo y se parsea
-        //super.onActivityResult(requestCode, resultCode, intent);
-        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanningResult != null) {
-            //Quiere decir que se obtuvo resultado pro lo tanto:
-            //Desplegamos en pantalla el contenido del código de barra scaneado
-            String scanContent = scanningResult.getContents();
+    private void registrarUsuario() {
 
-            StringTokenizer t = new StringTokenizer(scanContent, "*");
-            final String nombre = t.nextToken();
-            final String telefono = t.nextToken();
-            final String email = t.nextToken();
-            nombreTxt.setText("" + nombre);
-            //Desplegamos en pantalla el nombre del formato del código de barra scaneado
+        //Obtenemos el email y la contraseña desde las cajas de texto
+        String email = TextEmail.getText().toString().trim();
+        String password = TextPassword.getText().toString().trim();
 
-            telefonoTxt.setText("" + telefono);
-
-            //String scanFormat = scanningResult.getFormatName();
-            emailTxt.setText("" + email);
-
-
-        } else {
-            //Quiere decir que NO se obtuvo resultado
-            Toast toast = Toast.makeText(getApplicationContext(),
-                    "No se ha recibido datos del scaneo!", Toast.LENGTH_SHORT);
-            toast.show();
+        //Verificamos que las cajas de texto no esten vacías
+        if (TextUtils.isEmpty(email)) {//(precio.equals(""))
+            Toast.makeText(this, "Se debe ingresar un email", Toast.LENGTH_LONG).show();
+            return;
         }
+
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Falta ingresar la contraseña", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+
+        progressDialog.setMessage("Realizando registro en linea...");
+        progressDialog.show();
+
+        //registramos un nuevo usuario
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        //checking if success
+                        if (task.isSuccessful()) {
+
+                            Toast.makeText(MainActivity.this, "Se ha registrado el usuario con el email: " + TextEmail.getText(), Toast.LENGTH_LONG).show();
+                        } else {
+                            if (task.getException() instanceof FirebaseAuthUserCollisionException) {//si se presenta una colisión
+                                Toast.makeText(MainActivity.this, "Ese usuario ya existe ", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MainActivity.this, "No se pudo registrar el usuario ", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                        progressDialog.dismiss();
+                    }
+                });
+
     }
+
+    private void loguearUsuario() {
+        //Obtenemos el email y la contraseña desde las cajas de texto
+        final String email = TextEmail.getText().toString().trim();
+        String password = TextPassword.getText().toString().trim();
+
+        //Verificamos que las cajas de texto no esten vacías
+        if (TextUtils.isEmpty(email)) {//(precio.equals(""))
+            Toast.makeText(this, "Se debe ingresar un email", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (TextUtils.isEmpty(password)) {
+            Toast.makeText(this, "Falta ingresar la contraseña", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+
+        progressDialog.setMessage("Realizando consulta en linea...");
+        progressDialog.show();
+
+        //loguear usuario
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        //checking if success
+                        if (task.isSuccessful()) {
+                            int pos = email.indexOf("@");
+                            String user = email.substring(0, pos);
+                            Toast.makeText(MainActivity.this, "Bienvenido: " + TextEmail.getText(), Toast.LENGTH_LONG).show();
+                            Intent intencion = new Intent(getApplication(), WellcomeActivity.class);
+                            intencion.putExtra(WellcomeActivity.user, user);
+                            startActivity(intencion);
+
+
+                        } else {
+                            if (task.getException() instanceof FirebaseAuthUserCollisionException) {//si se presenta una colisión
+                                Toast.makeText(MainActivity.this, "Ese usuario ya existe ", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MainActivity.this, "No se pudo registrar el usuario ", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                        progressDialog.dismiss();
+                    }
+                });
+
+
+    }
+
 
     @Override
-    public void onClick(View v) {
-        //Se responde al evento click
-        if(v.getId()==R.id.scan_button){
-            //Se instancia un objeto de la clase IntentIntegrator
-            IntentIntegrator scanIntegrator = new IntentIntegrator(this);
-            //Se procede con el proceso de scaneo
-            scanIntegrator.initiateScan();
+    public void onClick(View view) {
+
+        switch (view.getId()) {
+
+            case R.id.botonRegistrar:
+                //Invocamos al método:
+                registrarUsuario();
+                break;
+            case R.id.botonLogin:
+                loguearUsuario();
+                break;
         }
 
-        if(v.getId()==R.id.guardar) {
 
-
-            AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(MainActivity.this,"museo2",null,1);
-            SQLiteDatabase bd=admin.getWritableDatabase();
-
-            ContentValues registro= new ContentValues();
-
-            registro.put("nombre",nombreTxt.getText().toString());
-            registro.put("telefono",telefonoTxt.getText().toString());
-            registro.put("email",emailTxt.getText().toString());
-            bd.insert("obras",null,registro);
-            bd.close();
-
-
-            Toast.makeText(MainActivity.this,"Se guardaron los datos de la obra satisfatoriamente", Toast.LENGTH_SHORT).show();
-
-        }
-
-        if(v.getId()==R.id.ver) {
-
-            AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(MainActivity.this,"museo2",null,1);
-            SQLiteDatabase bd=admin.getWritableDatabase();
-            String cdg = codigoTxt.getText().toString();
-
-            Cursor registro = bd.rawQuery("select nombre,telefono,email from obras where codigo="+cdg,null);
-
-            if (registro.moveToFirst()){
-
-                nombreTxt.setText(registro.getString(0));
-                telefonoTxt.setText(registro.getString(1));
-                emailTxt.setText(registro.getString(2));
-
-            }else
-                Toast.makeText(MainActivity.this,"No existe una obra con ese código", Toast.LENGTH_SHORT).show();
-
-            bd.close();
-
-
-        }
-
-        if(v.getId()==R.id.eliminar) {
-
-            AdminSQLiteOpenHelper admin = new AdminSQLiteOpenHelper(MainActivity.this,"museo2",null,1);
-            SQLiteDatabase bd=admin.getWritableDatabase();
-            String cdg = codigoTxt.getText().toString();
-
-            int cant = bd.delete("obras","codigo="+cdg,null);
-            bd.close();
-            codigoTxt.setText("");
-            nombreTxt.setText("");
-            telefonoTxt.setText("");
-            emailTxt.setText("");
-            if(cant==1)
-                Toast.makeText(MainActivity.this,"Los datos se borraron satisfatoriamente", Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(MainActivity.this,"No existe una obra con ese código", Toast.LENGTH_SHORT).show();
-
-        }
     }
 }
